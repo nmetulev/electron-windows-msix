@@ -460,6 +460,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/winappcli@npm:0.4.0":
+  version: 0.4.0
+  resolution: "@microsoft/winappcli@npm:0.4.0::__archiveUrl=https%3A%2F%2Fms-feed-12.pkgs.visualstudio.com%2F1es-public%2F_packaging%2Fnpm-public%2Fnpm%2Fregistry%2F%40microsoft%2Fwinappcli%2F-%2Fwinappcli-0.4.0.tgz"
+  bin:
+    winapp: ./dist/cli.js
+  conditions: os=win32
+  languageName: node
+  linkType: hard
+
 "@oxfmt/binding-android-arm-eabi@npm:0.44.0":
   version: 0.44.0
   resolution: "@oxfmt/binding-android-arm-eabi@npm:0.44.0"
@@ -1337,6 +1346,7 @@ __metadata:
   dependencies:
     "@electron/windows-sign": "npm:^1.2.2"
     "@malept/cross-spawn-promise": "npm:^2.0.0"
+    "@microsoft/winappcli": "npm:0.4.0"
     "@types/fs-extra": "npm:^11.0.4"
     "@vitest/coverage-istanbul": "npm:3.2.4"
     chalk: "npm:^3.0.0"
@@ -1350,6 +1360,9 @@ __metadata:
     typescript: "npm:^5.3.3"
     vitest: "npm:^3.2.4"
     xml-escape: "npm:^1.1.0"
+  dependenciesMeta:
+    "@microsoft/winappcli":
+      optional: true
   languageName: unknown
   linkType: soft
 

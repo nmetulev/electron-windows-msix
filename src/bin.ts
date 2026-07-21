@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 
 import { log } from './logger';
 import { ProgramOptions } from './types';
+import { runWinappTool } from './winappcli';
 
 const run = async (executable: string, args: Array<string>) => {
   return new Promise<string>((resolve, reject) => {
@@ -62,18 +63,18 @@ export const getCertPublisher = async (cert: string, cert_pass: string) => {
 };
 
 export const priConfig = async (program: ProgramOptions) => {
-  const { makePri, priConfig, createPri } = program;
+  const { priConfig, createPri } = program;
   if (createPri) {
     const args = ['createconfig', '/cf', priConfig, '/dq', 'en-US'];
     log.debug('Creating pri config.');
-    await run(makePri, args);
+    await runWinappTool(['makepri', ...args]);
   } else {
     log.debug('Skipping making pri config.');
   }
 };
 
 export const pri = async (program: ProgramOptions) => {
-  const { makePri, priConfig, layoutDir, priFile, appManifestLayout, createPri } = program;
+  const { priConfig, layoutDir, priFile, appManifestLayout, createPri } = program;
   if (createPri) {
     log.debug('Making pri.');
     const args = [
@@ -88,14 +89,14 @@ export const pri = async (program: ProgramOptions) => {
       priFile,
       '/v',
     ];
-    await run(makePri, args);
+    await runWinappTool(['makepri', ...args]);
   } else {
     log.debug('Skipping making pri.');
   }
 };
 
 export const make = async (program: ProgramOptions) => {
-  const { makeMsix, layoutDir, msix, isSparsePackage, compress, makeAppxParams } = program;
+  const { layoutDir, msix, isSparsePackage, compress, makeAppxParams } = program;
   const args = ['pack', '/d', layoutDir, '/p', msix, '/o'];
 
   if (isSparsePackage) {
@@ -105,7 +106,7 @@ export const make = async (program: ProgramOptions) => {
     args.push('/nc');
   }
   args.push(...(makeAppxParams ?? []));
-  await run(makeMsix, args);
+  await runWinappTool(['makeappx', ...args]);
 };
 
 export const sign = async (program: ProgramOptions) => {
