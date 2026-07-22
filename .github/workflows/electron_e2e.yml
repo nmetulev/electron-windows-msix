@@ -170,7 +170,7 @@ jobs:
           )
           $marker = $markerCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
           if ($marker) {
-            Write-Host "Startup marker found at $marker:"
+            Write-Host "Startup marker found at ${marker}:"
             Get-Content $marker | ForEach-Object { Write-Host "  $_" }
           } else {
             Write-Host '::warning::Startup marker not found (non-fatal; process check passed)'
