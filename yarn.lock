@@ -464,7 +464,7 @@ __metadata:
   version: 0.4.0
   resolution: "@microsoft/winappcli@npm:0.4.0::__archiveUrl=https%3A%2F%2Fms-feed-12.pkgs.visualstudio.com%2F1es-public%2F_packaging%2Fnpm-public%2Fnpm%2Fregistry%2F%40microsoft%2Fwinappcli%2F-%2Fwinappcli-0.4.0.tgz"
   bin:
-    winapp: ./dist/cli.js
+    winapp: dist/cli.js
   conditions: os=win32
   languageName: node
   linkType: hard
