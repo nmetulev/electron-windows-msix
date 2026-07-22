@@ -260,8 +260,6 @@ describe('bin', () => {
   it('should call sign with the correct arguments', async () => {
     await sign({
       sign: true,
-      signTool: 'C:\\SignTool.exe',
-      signParams: ['-fd', 'sha256', '-f', 'C:\\cert.pfx'],
       msix: 'C:\\myapp.msix',
       windowsSignOptions: {
         certificateFile: 'C:\\cert.pfx',
@@ -282,8 +280,6 @@ describe('bin', () => {
   it('should not call sign if sign is false', async () => {
     await sign({
       sign: false,
-      signTool: 'C:\\SignTool.exe',
-      signParams: ['-fd', 'sha256', '-f', 'C:\\cert.pfx'],
       msix: 'C:\\myapp.msix',
       windowsSignOptions: {
         certificateFile: 'C:\\cert.pfx',

@@ -133,12 +133,12 @@ export interface PackagingOptions {
    */
   makeAppxParams?: Array<string>;
   /**
-   * Indicates whether to sign the MSIX package. It will be enabled by default. If cert or signParams are not provided then the package will be signed with a dev cert.
+   * Indicates whether to sign the MSIX package. It will be enabled by default. If `windowsSignOptions` is not provided then the package will be signed with a dev cert.
    * If sign is false then the package will not be signed.
    */
   sign?: boolean;
   /**
-   * Optional options for @electron/windows-sign. If present it will supersede signParams parameter.
+   * Optional options for @electron/windows-sign. If present it will be used to sign the package.
    */
   windowsSignOptions?: WindowsSignOptions;
   /**

@@ -7,8 +7,9 @@ Electron-Windows-MSIX is a module that lets you create an MSIX installer from a 
 
 ### Prerequisites
  * Windows 10 or 11
- * The Windows 10 SDK you wan to target https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
  * An understanding of MSIX packaging and AppxManifest, read more at https://learn.microsoft.com/en-us/windows/msix/package/manual-packaging-root
+
+> **No Windows SDK install required.** The packaging tools (`makeappx`, `makepri`) are acquired automatically at build time by [`@microsoft/winappcli`](https://www.npmjs.com/package/@microsoft/winappcli), which is installed as an optional dependency on Windows. On the first package build it downloads the SDK build tools on demand.
 
 ### Installation
 
@@ -26,10 +27,8 @@ npm install electron-windows-msix --save-dev
   packageAssets      - Required assets declared in AppManifest.xml. E.g. icons and tile images
   outputDir          - The output directory for the finished MSIX package.
   packageName        - Optional name for the finished MSIX package. If not provided a name will be derived from AppManifest.xml.
-  windowsKitVersion  - Optional version of the WindowsKit to use. If WindowsKitPath is provide then it will trump this. If neither WindowsKitVersion nor
-                      WindowsKitPath is provided then the Windows Kit path will be derived from the S Version specified in AppManifest.xml.
-  windowsKitPath     - An optional full path to the WindowsKit. This path will trump both WindowsKitVersion and AppxManifest.
   createPri          - Indicates whether to create Pri resource files. It is enabled by default.
+  compress           - Indicates whether to compress package files. It is enabled by default.
   makeAppxParams     - Optional array of extra command line arguments appended to the `makeappx pack` invocation. E.g. ['/kf', 'key.txt'].
   sign               - Optional parameter that indicates whether the MSIX should be signed. True by default.
   windowsSignOptions - Optional parameter for `@electron/windows-sign`, missing will be filled in. See https://github.com/electron/windows-sign for details
@@ -137,7 +136,6 @@ await packageMSIX({
     certificateFile: 'C:\\temp\\app_cert.pfx',
     certificatePassword: 'hellomsix',
   },
-  windowsKitPath: 'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\19041\\x64',
   createPri: true,
   packageName: 'MyApp.msix',
   logLevel: 'warn',
@@ -154,7 +152,6 @@ await packageMSIX({
   appManifest: 'C:\\temp\\AppxManifest.xml',
   packageAssets: 'C:\\temp\\assets',
   outputDir: 'C:\\temp\\out',
-  windowsKitPath: 'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17763.0\\x64',
   createPri: true,
   packageName: 'MyApp.msix',
   logLevel: 'warn',
@@ -170,7 +167,8 @@ await packageMSIX({
 
 * Running the local E2E tests requires:
   * [PowerShell 7](https://learn.microsoft.com/en-us/powershell/?view=powershell-7.5)
-  * [Windows 11 SDK 10.0.26100.0](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
+
+  The Windows SDK packaging tools are downloaded on demand by `@microsoft/winappcli` the first time a package is built, so a manually installed Windows SDK is not required.
 
 ----
 #### [MIT License (MIT)](LICENSE) | Copyright (c) Jan Hannemann.
