@@ -123,15 +123,6 @@ export interface PackagingOptions {
   outputDir: string;
   /** Optional name for the finished MSIX package file. If not provided a name will be derived from AppManifest.xml. */
   packageName?: string;
-  /** Optional version of the WindowsKit to use. If WindowsKitPath is provide then it will trump this.
-   * If neither WindowsKitVersion nor WindowsKitPath is provided then the Windows Kit path will be derived from the
-   * OS Version specified in AppManifest.xml.
-   */
-  windowsKitVersion?: string;
-  /**
-   * An optional full path to the WindowsKit. This path will trump both WindowsKitVersion and AppxManifest.
-   */
-  windowsKitPath?: string;
   /** Indicates whether to create Pri resource files. It will be enabled by default. */
   createPri?: boolean;
   /** Indicates whether to compress package files. It will be enabled by default. */
@@ -142,12 +133,12 @@ export interface PackagingOptions {
    */
   makeAppxParams?: Array<string>;
   /**
-   * Indicates whether to sign the MSIX package. It will be enabled by default. If cert or signParams are not provided then the package will be signed with a dev cert.
+   * Indicates whether to sign the MSIX package. It will be enabled by default. If `windowsSignOptions` is not provided then the package will be signed with a dev cert.
    * If sign is false then the package will not be signed.
    */
   sign?: boolean;
   /**
-   * Optional options for @electron/windows-sign. If present it will supersede signParams parameter.
+   * Optional options for @electron/windows-sign. If present it will be used to sign the package.
    */
   windowsSignOptions?: WindowsSignOptions;
   /**
@@ -157,10 +148,6 @@ export interface PackagingOptions {
 }
 
 export interface ProgramOptions {
-  makeMsix: string;
-  makePri: string;
-  signTool: string;
-  makeCert: string;
   outputDir: string;
   layoutDir: string;
   msix: string;

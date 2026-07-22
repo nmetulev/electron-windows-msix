@@ -5,6 +5,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getCertPublisher, make, pri, priConfig, sign } from '../../src/bin';
 import { log } from '../../src/logger';
+import { runWinappTool } from '../../src/winappcli';
+
+vi.mock('../../src/winappcli', () => ({
+  runWinappTool: vi.fn(() => Promise.resolve('')),
+}));
 
 vi.mock('child_process', () => ({
   spawn: vi.fn(() => {
@@ -37,6 +42,7 @@ describe('bin', () => {
   beforeEach(() => {
     vi.mocked(windowsSign).mockClear();
     vi.mocked(spawn).mockClear();
+    vi.mocked(runWinappTool).mockClear();
   });
 
   it('should return the publisher from the cert', async () => {
@@ -144,110 +150,116 @@ describe('bin', () => {
 
   it('should call priConfig with the correct arguments', async () => {
     await priConfig({
-      makePri: 'C:\\makepri.exe',
       priConfig: 'C:\\priConfig.xml',
       createPri: true,
     } as any);
-    expect(spawn).toHaveBeenCalledWith(
-      'C:\\makepri.exe',
-      ['createconfig', '/cf', 'C:\\priConfig.xml', '/dq', 'en-US'],
-      {},
-    );
+    expect(runWinappTool).toHaveBeenCalledWith([
+      'makepri',
+      'createconfig',
+      '/cf',
+      'C:\\priConfig.xml',
+      '/dq',
+      'en-US',
+    ]);
   });
 
   it('should call priConfig with the correct arguments', async () => {
     await priConfig({
-      makePri: 'C:\\makepri.exe',
       priConfig: 'C:\\priConfig.xml',
       createPri: false,
     } as any);
-    expect(spawn).not.toHaveBeenCalled();
+    expect(runWinappTool).not.toHaveBeenCalled();
   });
 
   it('should call pri with the correct arguments', async () => {
     await pri({
-      makePri: 'C:\\makepri.exe',
       priConfig: 'C:\\priConfig.xml',
       layoutDir: 'C:\\layoutDir',
       priFile: 'C:\\priFile.xml',
       appManifestLayout: 'C:\\appManifestLayout.xml',
       createPri: true,
     } as any);
-    expect(spawn).toHaveBeenCalledWith(
-      'C:\\makepri.exe',
-      [
-        'new',
-        '/pr',
-        'C:\\layoutDir',
-        '/cf',
-        'C:\\priConfig.xml',
-        '/mn',
-        'C:\\appManifestLayout.xml',
-        '/of',
-        'C:\\priFile.xml',
-        '/v',
-      ],
-      {},
-    );
+    expect(runWinappTool).toHaveBeenCalledWith([
+      'makepri',
+      'new',
+      '/pr',
+      'C:\\layoutDir',
+      '/cf',
+      'C:\\priConfig.xml',
+      '/mn',
+      'C:\\appManifestLayout.xml',
+      '/of',
+      'C:\\priFile.xml',
+      '/v',
+    ]);
   });
 
   it('should skip pri if createPri is false', async () => {
     await pri({
       createPri: false,
     } as any);
-    expect(spawn).not.toHaveBeenCalled();
+    expect(runWinappTool).not.toHaveBeenCalled();
   });
 
   it('should call make with the correct arguments', async () => {
     await make({
-      makeMsix: 'C:\\makeappx.exe',
       layoutDir: 'C:\\layoutDir',
       msix: 'C:\\msix',
       isSparsePackage: false,
       compress: true,
     } as any);
-    expect(spawn).toHaveBeenCalledWith(
-      'C:\\makeappx.exe',
-      ['pack', '/d', 'C:\\layoutDir', '/p', 'C:\\msix', '/o'],
-      {},
-    );
+    expect(runWinappTool).toHaveBeenCalledWith([
+      'makeappx',
+      'pack',
+      '/d',
+      'C:\\layoutDir',
+      '/p',
+      'C:\\msix',
+      '/o',
+    ]);
   });
 
   it('should call make with the correct arguments for a sparse package', async () => {
     await make({
-      makeMsix: 'C:\\makeappx.exe',
       layoutDir: 'C:\\layoutDir',
       msix: 'C:\\msix',
       isSparsePackage: true,
       compress: true,
     } as any);
-    expect(spawn).toHaveBeenCalledWith(
-      'C:\\makeappx.exe',
-      ['pack', '/d', 'C:\\layoutDir', '/p', 'C:\\msix', '/o', '/nv'],
-      {},
-    );
+    expect(runWinappTool).toHaveBeenCalledWith([
+      'makeappx',
+      'pack',
+      '/d',
+      'C:\\layoutDir',
+      '/p',
+      'C:\\msix',
+      '/o',
+      '/nv',
+    ]);
   });
 
   it('should call make with the correct arguments for an uncompressed package', async () => {
     await make({
-      makeMsix: 'C:\\makeappx.exe',
       layoutDir: 'C:\\layoutDir',
       msix: 'C:\\msix',
       isSparsePackage: false,
       compress: false,
     } as any);
-    expect(spawn).toHaveBeenCalledWith(
-      'C:\\makeappx.exe',
-      ['pack', '/d', 'C:\\layoutDir', '/p', 'C:\\msix', '/o', '/nc'],
-      {},
-    );
+    expect(runWinappTool).toHaveBeenCalledWith([
+      'makeappx',
+      'pack',
+      '/d',
+      'C:\\layoutDir',
+      '/p',
+      'C:\\msix',
+      '/o',
+      '/nc',
+    ]);
   });
 
   it('should call sign with the correct arguments', async () => {
     await sign({
       sign: true,
-      signTool: 'C:\\SignTool.exe',
-      signParams: ['-fd', 'sha256', '-f', 'C:\\cert.pfx'],
       msix: 'C:\\myapp.msix',
       windowsSignOptions: {
         certificateFile: 'C:\\cert.pfx',
@@ -268,8 +280,6 @@ describe('bin', () => {
   it('should not call sign if sign is false', async () => {
     await sign({
       sign: false,
-      signTool: 'C:\\SignTool.exe',
-      signParams: ['-fd', 'sha256', '-f', 'C:\\cert.pfx'],
       msix: 'C:\\myapp.msix',
       windowsSignOptions: {
         certificateFile: 'C:\\cert.pfx',

@@ -172,7 +172,6 @@ describe('signing', () => {
           appExecutable: 'hellomsix.exe',
           targetArch: 'x64',
         },
-        windowsKitVersion: '10.0.26100.0',
       });
       expect(fs.existsSync(path.join(__dirname, '..', '..', 'out', 'hellomsix_x64.msix'))).toBe(
         true,
