@@ -7,15 +7,19 @@
 //   - `@microsoft/winappcli` resolves as an optionalDependency from public npm, and
 //   - winappcli self-acquires the SDK build tools (makeappx/makepri) at runtime.
 //
-// It packages + signs the fixture app and asserts the MSIX is produced. Installing,
-// launching, and uninstalling the result is handled by the workflow that runs this.
+// It packages + signs an app and asserts the MSIX is produced. Installing, launching,
+// and uninstalling the result is handled by the workflow that runs this.
 //
 // Inputs (environment variables):
-//   FIXTURES - absolute path to test/e2e/fixtures in the checked-out repo
-//   OUT_DIR  - absolute path to write the packaged MSIX into
+//   FIXTURES     - absolute path to test/e2e/fixtures in the checked-out repo (for the cert)
+//   OUT_DIR      - absolute path to write the packaged MSIX into
+//   APP_DIR      - app payload folder to package (default: the lightweight stub app-x64)
+//   APP_MANIFEST - AppxManifest to use (default: the stub AppxManifest_x64.xml)
+//
+// The Electron end-to-end job overrides APP_DIR/APP_MANIFEST to package a real Electron app.
 
 import { createRequire } from 'node:module';
-import { existsSync } from 'node:fs';
+import { appendFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
@@ -28,32 +32,39 @@ if (!fixtures || !outputDir) {
   throw new Error('FIXTURES and OUT_DIR environment variables are required');
 }
 
-const expectedMsix = path.join(outputDir, 'hellomsix_x64.msix');
+const appDir = process.env.APP_DIR || path.join(fixtures, 'app-x64');
+const appManifest = process.env.APP_MANIFEST || path.join(fixtures, 'AppxManifest_x64.xml');
 
 const main = async () => {
   console.log(`electron-windows-msix: ${require.resolve('electron-windows-msix')}`);
   console.log(`@microsoft/winappcli:  ${require.resolve('@microsoft/winappcli')}`);
-  console.log(`Packaging fixture app from ${fixtures} into ${outputDir}`);
+  console.log(`Packaging ${appDir}`);
+  console.log(`Using manifest ${appManifest} -> ${outputDir}`);
 
-  // Intentionally mirrors test/e2e/installation.spec.ts, including omitting
-  // packageAssets so the default assets shipped inside the tarball (static/assets)
-  // are exercised — this proves the published package is self-contained.
-  await packageMSIX({
-    appDir: path.join(fixtures, 'app-x64'),
+  // Intentionally omits packageAssets so the default assets shipped inside the tarball
+  // (static/assets) are exercised — this proves the published package is self-contained.
+  // Intentionally omits windowsSignOptions.files so the library signs whatever MSIX it
+  // produces (name-agnostic), which keeps this script reusable across fixtures.
+  const { msixPackage } = await packageMSIX({
+    appDir,
     outputDir,
-    appManifest: path.join(fixtures, 'AppxManifest_x64.xml'),
+    appManifest,
     windowsSignOptions: {
-      files: [expectedMsix],
       certificateFile: path.join(fixtures, 'MSIXDevCert.pfx'),
       certificatePassword: 'Password123',
     },
   });
 
-  if (!existsSync(expectedMsix)) {
-    throw new Error(`Expected MSIX was not produced at ${expectedMsix}`);
+  if (!msixPackage || !existsSync(msixPackage)) {
+    throw new Error(`Expected MSIX was not produced (got ${msixPackage})`);
   }
 
-  console.log(`OK: produced signed MSIX at ${expectedMsix}`);
+  console.log(`OK: produced signed MSIX at ${msixPackage}`);
+
+  // Hand the produced path back to the workflow so it can install/launch/uninstall it.
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `msix=${msixPackage}\n`);
+  }
 };
 
 main().catch((error) => {

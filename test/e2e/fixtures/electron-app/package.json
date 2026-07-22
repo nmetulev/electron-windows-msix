@@ -1,0 +1,13 @@
+{
+  "name": "helloelectron",
+  "productName": "HelloElectron",
+  "version": "1.2.3",
+  "description": "Minimal real Electron app used to test electron-windows-msix end to end",
+  "main": "main.js",
+  "author": "Electron MSIX",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "electron": "^33.0.0"
+  }
+}
